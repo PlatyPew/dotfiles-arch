@@ -6,7 +6,7 @@
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
 static char *font = "InconsolataGo Nerd Font:size=13:antialias=true:hinting=true";
-static int borderpx = 20;
+static int borderpx = 3;
 
 /*
  * What program is execed by st depends of these precedence rules:
