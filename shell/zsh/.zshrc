@@ -100,3 +100,6 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export PATH=$PATH:~/.local/bin
+
+alias ls=exa
+alias cat="bat --theme 'Monokai Extended'"

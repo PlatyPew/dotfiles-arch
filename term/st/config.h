@@ -88,27 +88,27 @@ unsigned int alpha = 235;
 static const char *colorname[] = {
     /* 8 normal colours */
     "#000000",
-    "#FF5555",
-    "#50FA7B",
-    "#F1FA8C",
-    "#BD93F9",
-    "#FF79C6",
-    "#8BE9FD",
-    "#BFBFBF",
+    "#ff5555",
+    "#50fa7b",
+    "#f1fa8c",
+    "#bd93f9",
+    "#ff79c6",
+    "#8be9fd",
+    "#bfbfbf",
 
     /* 8 bright colours */
-    "#4D4D4D",
-    "#FF6E67",
-    "#5AF78E",
-    "#F4F99D",
-    "#CAA9FA",
-    "#FF92D0",
-    "#9AEDFE",
-    "#E6E6E6",
+    "#4d4d4d",
+    "#ff6e67",
+    "#5af78e",
+    "#f4f99d",
+    "#caa9fa",
+    "#ff92d0",
+    "#9aedfe",
+    "#e6e6e6",
 
     /* special colors */
-    [256] = "#282A36",
-    [257] = "#F8F8F2"
+    [256] = "#282a36",
+    [257] = "#f8f8f2"
 };
 
 /*
