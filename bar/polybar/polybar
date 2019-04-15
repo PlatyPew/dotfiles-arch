@@ -169,7 +169,7 @@ format-full-prefix = " "
 format-full-suffix = " "
 label-full = Fully Charged
 format-full-prefix-font = 1
-format-full-background = ${colours.purple}
+format-full-background = ${colours.comment}
 format-full-foreground = ${colours.green}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [module/network]

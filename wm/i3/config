@@ -198,6 +198,8 @@ exec --no-startup-id ~/.fehbg
 exec --no-startup-id compton -b --config ~/.config/compton/compton.conf
 exec --no-startup-id "sleep 1 && polybar -r -c ~/.config/polybar/polybar top & 2> /dev/null"
 exec --no-startup-id "dunst &"
+exec --no-startup-id redshift -l 1.3521:103.8198 &
+exec --no-startup-id synclient VertScrollDelta=-111
 
 bindsym $mod+x exec "betterlockscreen -l dimblur"
 bindsym Print exec imlib2_grab "$HOME/Pictures/photo-`date +%Y-%m-%d_%H:%M:%S`.png"
