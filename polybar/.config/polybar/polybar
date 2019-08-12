@@ -122,7 +122,6 @@ format-muted = <label-muted>
 format-muted-foreground = ${colours.black}
 format-muted-background = ${colours.orange}
 label-muted =" 婢 Muted "
-format-muted-font = 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [module/battery]
 type = internal/battery
