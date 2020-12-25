@@ -154,7 +154,7 @@ ft(){
         return
     fi
     local match=$(
-      rg --trim --vimgrep --color=never --line-number "$1" 2> /dev/null |
+      rg --hidden --trim --vimgrep --color=never --line-number "$1" 2> /dev/null |
         fzf --no-multi --delimiter : \
             --preview "bat --color=always --line-range {2}: {1}"
       )

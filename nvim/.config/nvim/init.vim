@@ -104,7 +104,7 @@ augroup spell_check
     autocmd FileType text,markdown setlocal spell
 augroup END
 let g:clipboard = {
-  \ 'name': 'pbcopy',
+  \ 'name': 'xclip',
   \ 'copy': {
   \    '+': 'xclip',
   \    '*': 'xclip',
@@ -289,7 +289,7 @@ inoremap <silent><expr><s-tab> pumvisible() ? "\<C-p>" : "\<s-tab>"
 "" Settings
 set completeopt-=preview
 " C/C++
-let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so.8'
+let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
 let g:deoplete#sources#clang#sort_algo = 'priority'
 " JS
 let g:tern_request_timeout = 1
@@ -341,7 +341,7 @@ nmap <leader>L :LivedownToggle<CR>
 let g:livedown_autorun = 0
 let g:livedown_open = 1 
 let g:livedown_port = 1337
-let g:livedown_browser = 'safari'
+let g:livedown_browser = 'firefox'
 """ End Of Livedown Configurations --------------------------------------------
 
 """ Multiple Cursors Configurations -------------------------------------------
@@ -435,7 +435,6 @@ nmap <leader>i :call ToggleIDE()<CR>
 let s:ide = 0
 function ToggleIDE()
     if s:ide
-        set shell=/bin/zsh
         silent execute("norm \<C-h>")
         silent execute('vertical resize +6')
         silent execute('NERDTreeToggle')
@@ -450,7 +449,6 @@ function ToggleIDE()
         silent call deoplete#disable()
         let s:ide = 0
     else
-        set shell=/bin/bash
         silent execute('NERDTreeToggle')
         silent execute('vertical resize -6')
         silent execute("norm \<C-l>")
