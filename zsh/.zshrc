@@ -13,7 +13,7 @@ plugins=(
     web-search
     sudo
     extract
-    autojump
+    # autojump
     # zsh-autosuggestions
 )
 
@@ -25,7 +25,9 @@ ZSH_AUTOSUGGEST_USE_ASYNC=true
 ## Check if X11 is running #################################
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ]; then
     if [ "$XDG_VTNR" -eq 1 ]; then
-        startx
+        clear
+        sleep 1.2
+        startx > /dev/null 2>&1
         PS1="$USER@$(hostname)%% "
     fi
 else
