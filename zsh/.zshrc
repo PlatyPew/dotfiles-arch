@@ -27,7 +27,7 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ]; then
     if [ "$XDG_VTNR" -eq 1 ]; then
         clear
         sleep 1.2
-        startx > /dev/null 2>&1
+        startx ~/.xinitrc_boot > /dev/null 2>&1
         PS1="$USER@$(hostname)%% "
     fi
 else
