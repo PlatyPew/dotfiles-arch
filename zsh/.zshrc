@@ -27,7 +27,8 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ]; then
     if [ "$XDG_VTNR" -eq 1 ]; then
         clear
         sleep 1.2
-        startx ~/.xinitrc_boot > /dev/null 2>&1
+        # startx ~/.xinitrc_boot > /dev/null 2>&1
+        nvidia-xrun > /dev/null 2>&1
         PS1="$USER@$(hostname)%% "
     fi
 else
@@ -229,6 +230,7 @@ alias :q='exit'
 alias cls='clear'
 alias ls='exa --git'
 alias cat="bat --theme 'Monokai Extended'"
+alias sonos="nohup xvfb-run swyh-rs &"
 ############################################################
 
 export FZF_DEFAULT_COMMAND='rg $(pwd) --files --hidden --no-ignore-vcs -g "!.git/*" 2> /dev/null'
