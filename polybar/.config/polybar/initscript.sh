@@ -2,7 +2,6 @@
 INIT=$(rofi -i -p "Init" -dmenu -theme ~/.config/rofi/dracula.rasi << EOF
 Lock
 Suspend
-Hibernate
 Reboot
 Shutdown
 EOF
@@ -10,13 +9,10 @@ EOF
 
 case "$INIT" in
     Lock)
-        multilockscreen --off 300 --lock dimblur --dim 10 --blur 0.5
+        betterlockscreen --lock dimblur --dim 10 --blur 0.5
         ;;
     Suspend)
-        systemctl suspend
-        ;;
-    Hibernate)
-        systemctl hibernate
+        betterlockscreen --lock dimblur --dim 10 --blur 0.5 & systemctl suspend
         ;;
     Reboot)
         reboot

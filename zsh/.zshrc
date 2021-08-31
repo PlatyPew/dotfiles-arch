@@ -230,7 +230,7 @@ alias :q='exit'
 alias cls='clear'
 alias ls='exa --git'
 alias cat="bat --theme 'Monokai Extended'"
-alias sonos="nohup xvfb-run swyh-rs &"
+alias sonos="nohup swyh-rs 2>&1 > /dev/null & disown %$(jobs | grep swyh-rs | awk '{print $1}' | tr -d '[]')"
 ############################################################
 
 export FZF_DEFAULT_COMMAND='rg $(pwd) --files --hidden --no-ignore-vcs -g "!.git/*" 2> /dev/null'

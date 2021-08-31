@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=xranger
+GenericName=File Manager
+Comment=Launches the ranger file manager
+Exec=/usr/local/bin/st ranger %F
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+MimeType=inode/directory;
+StartupNotify=true
+Categories=System;FileTools;FileManager
