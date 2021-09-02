@@ -8,14 +8,13 @@ Plug 'dracula/vim'                                                      " Colour
 Plug 'vim-airline/vim-airline'                                          " Plugin that gives blocks on the top and bottom neovim
 Plug 'vim-airline/vim-airline-themes'                                   " Imports a library of themes for vim-arline
 Plug 'ryanoasis/vim-devicons'                                           " Allows for nerdfont icons to be displayed
-Plug 'junegunn/limelight.vim', {'on': 'Limelight!!'}                    " Grey-out paragraphs the cursor is not on
 Plug 'junegunn/rainbow_parentheses.vim', {'on': 'RainbowParentheses!!'} " Adds rainbow colouring for nested parenthesis
-Plug 'junegunn/goyo.vim', {'on': 'Goyo'}                                " Distraction-free setting
 Plug 'mhinz/vim-startify'                                               " Better startup screen for vim
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight',
+            \ {'on': 'NERDTreeToggle'}                                  " Colours for nerd tree
 " Syntax highlighting
-Plug 'pangloss/vim-javascript', {'for': 'javascript'}                   " Nicer syntax highlighting for javascript
-Plug 'vim-python/python-syntax', {'for': 'python'}                      " Nicer syntax highlighting for python
-Plug 'octol/vim-cpp-enhanced-highlight', {'for': ['c', 'cpp']}          " Nicer syntax highlighting for clang
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}             " Better syntax parser
+Plug 'machakann/vim-highlightedyank'
 
 "" Functionalities
 " Git
@@ -23,47 +22,34 @@ Plug 'airblade/vim-gitgutter'                                           " Shows 
 Plug 'tpope/vim-fugitive'                                               " Git wrapper
 Plug 'Xuyuanp/nerdtree-git-plugin', {'on': 'NERDTreeToggle'}
 " File finding
-Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}                    " Shows file tree
-Plug '/usr/local/opt/fzf'                                               " Fuzzy finder
-Plug 'junegunn/fzf.vim'
+Plug 'preservim/nerdtree', {'on': 'NERDTreeToggle'}                     " Shows file tree
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } , 'on': 'FZF'}        " Fuzzy finder
+Plug 'junegunn/fzf.vim', {'on': 'FZF'}
 " Auto-completion
-Plug 'shougo/neoinclude.vim'                                            " Completion framework for deoplete
-Plug 'shougo/deoplete.nvim', {'do': ':UpdateRemotePlugins'}             " Auto-completion plugin
-Plug 'zchee/deoplete-clang', {'for': ['c', 'cpp']}                      " Auto-Completion support for C/C++
-Plug 'zchee/deoplete-jedi', {'for': 'python'}                           " Auto-Completion support for Python
-Plug 'carlitux/deoplete-ternjs', {'for': 'javascript'}                  " Auto-Completion support for Javascript
-Plug 'zchee/deoplete-zsh', {'for': ['sh', 'bash', 'zsh']}               " Auto-Completion for Zsh
-Plug 'shougo/neco-syntax'                                               " Auto-Completion for other languages
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
 "More efficient (lazy) plugins
 Plug 'terryma/vim-multiple-cursors'                                     " Sublime-styled multiple cursors support
 Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
-Plug 'shime/vim-livedown', {'on': 'LivedownToggle'}                     " Live preview of markdown in browser
+Plug 'shime/vim-livedown', {'for': 'md', 'on': 'LivedownToggle'}        " Live preview of markdown in browser
 Plug 'easymotion/vim-easymotion'                                        " Enhanced mobility in vim
-Plug 'scrooloose/nerdcommenter'                                         " Easy commenting
+Plug 'preservim/nerdcommenter'                                          " Easy commenting
 Plug 'anyakichi/vim-surround'                                           " Surround highlighted text easier
 " Misc
 Plug 'vim-scripts/LargeFile'                                            " Edit large files quickly
 Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}                        " Undo visualiser
-Plug 'w0rp/ale'                                                         " Asynchronous linting
-Plug 'majutsushi/tagbar', {'on': ['TagbarToggle', 'TagbarOpen']}        " Shows tags while programming
-Plug 'hushicai/tagbar-javascript.vim'                                   " Shows tags for javascript
-" Plug 'floobits/floobits-neovim', {'do': ':UpdateRemotePlugins'}        " Collaborative editing (Laggy as heck)
+Plug 'mattn/emmet-vim', {'for': ['html', 'css', 'markdown', 'vue']}     " Quick way to generatre html
+Plug 'kkoomen/vim-doge', {'do': { -> doge#install() },
+            \ 'for': ['c', 'cpp', 'python', 'javascript', 'java']}      " Documentation Generator
+Plug 'nvim-treesitter/nvim-treesitter-refactor'                         " Better refactor tool
+Plug 'jbyuki/instant.nvim',
+            \ {'on': ['InstantStartServer', 'InstantJoinSession']}      " Peer pair programming
+Plug 'sbdchd/neoformat',
+            \ {'for': ['c', 'cpp', 'python', 'javascript'],
+            \ 'on': 'Neoformat'}
 
 call plug#end()
 """ End Of Vim-Plug -----------------------------------------------------------
-
-
-""" Plugin Colouring ----------------------------------------------------------
-"" Python
-let g:python_highlight_all = 1
-let g:python_slow_sync = 0
-"" Clang
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_class_decl_highlight = 1
-let g:cpp_experimental_simple_template_highlight = 1
-let g:cpp_concepts_highlight = 1
-""" End Of Plugin Colouring ---------------------------------------------------
 
 
 """ Vanilla Colouring ---------------------------------------------------------
@@ -81,7 +67,7 @@ highlight Normal guibg=NONE
 
 
 """ Vanilla Configurations ----------------------------------------------------
-set number
+set number relativenumber
 set encoding=UTF-8
 set backspace=eol,start,indent
 set whichwrap+=<,>,h,l                                                  " Cursor wrap around in normal mode
@@ -106,12 +92,10 @@ augroup END
 let g:clipboard = {
   \ 'name': 'xclip',
   \ 'copy': {
-  \    '+': 'xclip',
-  \    '*': 'xclip',
+  \    '*': 'xclip -in -selection clipboard',
   \  },
   \ 'paste': {
-  \    '+': 'xsel',
-  \    '*': 'xsel',
+  \    '*': 'xclip -out -selection clipboard',
   \ },
   \ 'cache_enabled': 0,
   \ }
@@ -137,10 +121,10 @@ vnoremap <silent> <Up> :resize +2 <CR>
 " Decrease horizontal split
 nnoremap <silent> <Down> :resize -2 <CR>
 vnoremap <silent> <Down> :resize -2 <CR>
-" Increase vertical split
+" Decrease vertical split
 nnoremap <silent> <Left> :vertical resize -2 <CR>
 vnoremap <silent> <Left> :vertical resize -2 <CR>
-" Decrease horizontal split
+" Increase vertical split
 nnoremap <silent> <Right> :vertical resize +2 <CR>
 vnoremap <silent> <Right> :vertical resize +2 <CR>
 
@@ -179,6 +163,15 @@ nnoremap <leader>bq :bdelete<CR>
 """ End Of Vanilla Rebindings -------------------------------------------------
 
 
+""" Highlighted Yank Configurations -------------------------------------------
+"" Colours
+highlight HighlightedyankRegion cterm=reverse
+
+"" Settings
+let g:highlightedyank_highlight_duration = -1
+""" End Of Highlighted Yank Configurations ------------------------------------
+
+
 """ Vim-Airline Configurations ------------------------------------------------
 let g:airline_powerline_fonts = 1
 let g:airline_section_warning = ''
@@ -186,16 +179,6 @@ let g:airline_section_z = ' %{strftime("%-I:%M %p")}'
 let g:airline_theme='dracula'
 let g:airline#extensions#tabline#enabled = 1
 """ End Of Vim-Airline Configurations -----------------------------------------
-
-
-""" Limelight Configurations --------------------------------------------------
-"" Mappings
-" Activate Limelight   \l
-nmap <leader>l :Limelight!!<CR>
-
-"" Colour
-let g:limelight_conceal_ctermfg = 254
-""" End Of Limelight Configurations -------------------------------------------
 
 
 """ Rainbow Parentheses Configurations ----------------------------------------
@@ -209,14 +192,9 @@ augroup rainbow_lisp
     autocmd VimEnter * RainbowParentheses
 augroup END
 let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]
+
+let g:rainbow#blacklist = ['foreground', '#d1951d']
 """ End Of Rainbow Parentheses Configurations ---------------------------------
-
-
-""" Goyo Configurations -------------------------------------------------------
-"" Mappings
-" Activate Goyo    \G
-nmap <leader>G :Goyo <bar> :highlight clear Comment <CR> :highlight Comment cterm=italic guifg=#7c7c7c<CR>
-""" End Of Goyo Configurations ------------------------------------------------
 
 
 """ Git Gutter Configurations -------------------------------------------------
@@ -242,6 +220,22 @@ augroup nerdtree_stuff
     autocmd!
     autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 augroup END
+
+" Highlight full name and only certain extensions
+let g:NERDTreeFileExtensionHighlightFullName = 1
+let g:NERDTreeExactMatchHighlightFullName = 1
+let g:NERDTreePatternMatchHighlightFullName = 1
+let g:NERDTreeSyntaxDisableDefaultExtensions = 1
+let g:NERDTreeSyntaxDisableDefaultExactMatches = 1
+let g:NERDTreeSyntaxDisableDefaultPatternMatches = 1
+let g:NERDTreeSyntaxEnabledExtensions = ['c', 'h', 'cpp', 'py', 'rb', 'js', 'css', 'html', 'java',
+  \ 'class', 'md']
+let g:NERDTreeSyntaxEnabledExactMatches = ['venv', 'node_modules', 'favicon.ico']
+
+" Open directories with nerdtree instead of netrw
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
+    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
 """ End Of Nerd Tree Configurations -------------------------------------------
 
 
@@ -273,28 +267,63 @@ nnoremap <silent><C-p> :FZF --preview=head\ -13\ {}<CR>
 """ End Of FZF Configurations -------------------------------------------------
 
 
-""" Deoplete Configurations ---------------------------------------------------
+""" LSP Configurations --------------------------------------------------------
 "" Colours
-highlight Pmenu guifg=#b2b2b2 guibg=#26252d
-highlight PmenuSel guifg=#bd93f9 guibg=#756b82
+highlight Pmenu guifg=#ffffff guibg=#282a36
+highlight PmenuSel guifg=#000000 guibg=#bd93f9
+highlight LspDiagnosticsDefaultError ctermfg=9
+highlight LspDiagnosticsDefaultWarning ctermfg=3
 
 "" Mappings
-" Activate deoplete    \d
-nmap <leader>d :call deoplete#toggle()<CR>
 " Go down    Tab
 inoremap <silent><expr><tab>  pumvisible() ? "\<C-n>" : "\<tab>"
 " Go up      Shift-Tab
 inoremap <silent><expr><s-tab> pumvisible() ? "\<C-p>" : "\<s-tab>"
 
 "" Settings
-set completeopt-=preview
-" C/C++
-let g:deoplete#sources#clang#libclang_path = '/usr/lib/libclang.so'
-let g:deoplete#sources#clang#sort_algo = 'priority'
-" JS
-let g:tern_request_timeout = 1
-let g:tern_request_timeout = 6000
-""" End Of Deoplete Configurations --------------------------------------------
+set completeopt=menuone,noinsert,noselect
+set shortmess+=c
+let g:completion_sorting = "length"
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy', 'all']
+let g:completion_confirm_key = ""
+
+" LSP settings
+lua <<EOF
+    local lspconfig = require'lspconfig'
+    lspconfig.clangd.setup{
+        on_attach = require'completion'.on_attach,
+        cmd = { "clangd", "--background-index", "--clang-tidy" }
+    }
+
+    lspconfig.jedi_language_server.setup{
+        on_attach = require'completion'.on_attach,
+        cmd = { "jedi-language-server" }
+    }
+
+    lspconfig.tsserver.setup{
+        on_attach = require'completion'.on_attach,
+        cmd = { "typescript-language-server", "--stdio" }
+    }
+
+    lspconfig.bashls.setup{
+        on_attach = require'completion'.on_attach,
+        cmd = { "bash-language-server", "start" }
+    }
+EOF
+
+augroup lspmappings
+    autocmd!
+    autocmd FileType c,cpp,python,javascript call SetLSPMappings()
+augroup END
+
+function SetLSPMappings()
+    nmap gd :lua vim.lsp.buf.definition()<CR>
+    nmap gh :lua vim.lsp.buf.hover()<CR>
+    nmap gre :lua vim.lsp.buf.references()<CR>
+    nmap gi :lua vim.lsp.buf.implementation()<CR>
+    nmap gR :lua vim.lsp.buf.rename()<CR>
+endfunction
+""" End Of LSP Configurations -------------------------------------------------
 
 
 """ Vim Fugitive Configurations -----------------------------------------------
@@ -308,14 +337,15 @@ nnoremap <silent> <leader>gd :Gdiff<CR>
 """ End Of Vim Fugitive Configurations ----------------------------------------
 
 
-""" ALE Configurations --------------------------------------------------------
+""" Vim Fugitive Configurations -----------------------------------------------
 "" Mappings
-" Activate ALE    \a
-nmap <leader>a :ALEToggle<CR>
-
-"" Settings
-let g:ale_enabled = 0
-""" End Of ALE Configurations -------------------------------------------------
+" Show git status    Tab
+nnoremap <silent> <leader>gs :Gstatus<CR>
+" Show git blame     Tab
+nnoremap <silent> <leader>gb :Gblame<CR>
+" Show git diff      Tab
+nnoremap <silent> <leader>gd :Gdiff<CR>
+""" End Of Vim Fugitive Configurations ----------------------------------------
 
 
 """ Undo Tree Configurations --------------------------------------------------
@@ -326,7 +356,7 @@ nmap <Tab> :UndotreeToggle<CR>
 "" Settings
 " Loads persistent undo tree to ~/.cache
 if has('persistent_undo')
-    set undodir=~/.cache/undotree
+    set undodir=~/.cache/nvim/undotree
     set undofile
 endif
 """ End Of UndoTree Configurations --------------------------------------------
@@ -339,32 +369,10 @@ nmap <leader>L :LivedownToggle<CR>
 
 "" Settings
 let g:livedown_autorun = 0
-let g:livedown_open = 1 
+let g:livedown_open = 1
 let g:livedown_port = 1337
-let g:livedown_browser = 'firefox'
+let g:livedown_browser = 'brave'
 """ End Of Livedown Configurations --------------------------------------------
-
-""" Multiple Cursors Configurations -------------------------------------------
-"" Functions
-" Disable Deoplete when selecting multiple cursors starts
-function! Multiple_cursors_before()
-    if exists('*deoplete#disable')
-        exe 'call deoplete#disable()'
-    elseif exists(':NeoCompleteLock') == 2
-        exe 'NeoCompleteLock'
-    endif
-endfunction
-
-" Enable Deoplete when selecting multiple cursors ends
-function! Multiple_cursors_after()
-    if exists('*deoplete#toggle')
-        exe 'call deoplete#toggle()'
-    elseif exists(':NeoCompleteUnlock') == 2
-        exe 'NeoCompleteUnlock'
-    endif
-endfunction
-""" End Of Multiple Cursors Configurations ------------------------------------
-
 
 """ Autopairs Configurations --------------------------------------------------
 "" Settings
@@ -384,15 +392,127 @@ nmap <S-Tab> :TagbarToggle<CR>
 
 """ Nerd Commenter Configurations ---------------------------------------------
 "" Settings
-let g:NERDSpaceDelims = 1                                               " Add spaces after comment delimiters by default
-let g:NERDCompactSexyComs = 1                                           " Use compact syntax for prettified multi-line comments
-let g:NERDAltDelims_java = 1                                            " Set a language to use its alternate delimiters by default
-let g:NERDTrimTrailingWhitespace = 1                                    " Enable trimming of trailing whitespace when uncommenting
-let g:NERDToggleCheckAllLines = 1                                       " Enable NERDCommenterToggle to check all selected lines is commented or not 
+let g:NERDSpaceDelims = 1                      " Add spaces after comment delimiters by default
+let g:NERDCompactSexyComs = 1                  " Use compact syntax for prettified multi-line comments
+let g:NERDAltDelims_java = 1                   " Set a language to use its alternate delimiters by default
+let g:NERDTrimTrailingWhitespace = 1           " Enable trimming of trailing whitespace when uncommenting
+let g:NERDToggleCheckAllLines = 1              " Enable NERDCommenterToggle to check all selected lines is commented or not 
 let g:NERDCustomDelimiters = {
     \ 'python': { 'left': '#', 'right': '' }
-    \ }                                                                 " Fix for double spacing while commenting Python
+    \ }                                        " Fix for double spacing while commenting Python
 """ End Of Nerd Commenter Configurations --------------------------------------
+
+
+""" Doge Configurations -------------------------------------------------------
+let g:doge_mapping = '<Leader>K'
+let g:doge_doc_standard_c = 'kernel_doc'
+""" End of Doge Configurations ------------------------------------------------
+
+""" TreeSitter Configurations -------------------------------------------------
+"" Enable tree sitter
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+     ensure_installed = "maintained",
+     highlight = {
+          enable = true,
+          disable = {},
+     },
+     refactor = {
+          highlight_definitions = { enable = true },
+          smart_rename = {
+               enable = true,
+               keymaps = {
+                    smart_rename = "grr",
+               },
+          },
+          navigation = {
+               enable = true,
+               keymaps = {
+                    goto_definition = "gnd",
+                    list_definitions = "gnD",
+               },
+          },
+     },
+}
+
+-- Fix rainbow paretheses
+require"nvim-treesitter.highlight"
+local hlmap = vim.treesitter.highlighter.hl_map
+hlmap.error = nil
+hlmap["punctuation.delimiter"] = "Delimiter"
+hlmap["punctuation.bracket"] = nil
+EOF
+""" End of TreeSitter ---------------------------------------------------------
+
+""" Instant Settings-----------------------------------------------------------
+let g:instant_username = trim(system('whoami'))
+
+function StartInstantSession()
+    let port = input('Server Port: ')
+    silent execute('InstantStartServer 0.0.0.0 ' . port)
+    silent execute('InstantStartSession 0.0.0.0 ' . port)
+    execute('InstantStatus')
+endfunction
+
+function JoinInstantSession()
+    let host = input('Server Host to connect: ')
+    let port = input('Server Port to connect: ')
+    silent execute('InstantJoinSession ' . host . ' ' . port)
+    execute('InstantStatus')
+endfunction
+
+function StopInstantSession()
+    silent execute('InstantStop')
+    execute('InstantStatus')
+endfunction
+
+function StopInstantServer()
+    silent execute('InstantStopServer')
+    execute('InstantStatus')
+endfunction
+
+nmap <leader>Is :call StartInstantSession()<CR>
+nmap <leader>Ij :call JoinInstantSession()<CR>
+nmap <leader>Iq :call StopInstantSession()<CR>
+nmap <leader>IQ :call StopInstantServer()<CR>
+""" End of Instant  -----------------------------------------------------------
+
+
+""" Neoformat Settings --------------------------------------------------------
+"" Mappings
+" Format code
+nnoremap <silent> g= :Neoformat <CR>
+
+"" Settings
+" Clang-format
+let g:neoformat_c_clangformat = {
+    \ 'exe': 'clang-format',
+    \ 'args': ['--style="{IndentWidth: 4, PointerAlignment: Left, ColumnLimit: 100}"']
+\}
+let g:neoformat_cpp_clangformat = {
+    \ 'exe': 'clang-format',
+    \ 'args': ['--style="{IndentWidth: 4, PointerAlignment: Left, ColumnLimit: 100}"']
+\}
+
+" Yapf
+let g:neoformat_python_yapf = {
+    \ 'exe': 'yapf',
+    \ 'args': ['--style="{column_limit: 100}"']
+\}
+
+" Prettier
+let g:neoformat_javascript_prettier = {
+    \ 'exe': 'prettier',
+    \ 'args': ['--stdin-filepath', '"%:p"', '--tab-width=4', '--print-width=100'],
+    \ 'stdin': 1,
+\}
+
+let g:neoformat_vue_prettier = {
+    \ 'exe': 'prettier',
+    \ 'args': ['--stdin-filepath', '"%:p"', '--tab-width=4', '--print-width=100', '--vue-indent-script-and-style'],
+    \ 'stdin': 1,
+\}
+""" End of Neoformat Settings -------------------------------------------------
 
 
 """ Vanilla Terminal Support --------------------------------------------------
@@ -438,15 +558,12 @@ function ToggleIDE()
         silent execute("norm \<C-h>")
         silent execute('vertical resize +6')
         silent execute('NERDTreeToggle')
-        silent execute('TagbarClose')
         silent execute("norm \<C-j>")
         augroup stop_insertmode
             autocmd!
             autocmd WinEnter * stopinsert
         augroup END
         silent execute('q')
-        silent execute('ALEDisable')
-        silent call deoplete#disable()
         let s:ide = 0
     else
         silent execute('NERDTreeToggle')
@@ -460,12 +577,6 @@ function ToggleIDE()
             autocmd WinEnter term://* startinsert
         augroup END
         silent execute("norm \<C-k>")
-        silent execute('TagbarOpen')
-        silent execute("norm \<C-l>")
-        silent execute('vertical resize -8')
-        silent execute("norm \<C-h>")
-        silent execute('ALEEnable')
-        silent call deoplete#enable()
         let s:ide = 1
     endif
 endfunction
