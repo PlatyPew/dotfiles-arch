@@ -134,7 +134,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
+bindsym $mod+Shift+e exec i3-msg exit
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -169,9 +169,6 @@ bindsym $mod+r mode "resize"
         # status_command i3status
 # }
 
-
-
-
 # Colours:              border  backgr. text    ind.
 client.focused          #bd93f9 #bd93f9 #ffffff #bd93f9
 client.focused_inactive #231833 #231833 #c4c4c4 #222222
@@ -184,22 +181,29 @@ gaps inner 8
 gaps outer 8
 
 # Volume binding
-bindsym XF86AudioRaiseVolume exec --no-startup-id "amixer -q set Master 2%+"
-bindsym XF86AudioLowerVolume exec --no-startup-id "amixer -q set Master 2%-"
+bindsym XF86AudioRaiseVolume exec --no-startup-id "amixer -q set Master 1%+"
+bindsym XF86AudioLowerVolume exec --no-startup-id "amixer -q set Master 1%-"
 bindsym XF86AudioMute exec --no-startup-id "amixer -q set Master toggle"
 
 # Brightness binding
 bindsym XF86MonBrightnessUp exec "xbacklight -inc 10"
 bindsym XF86MonBrightnessDown exec "xbacklight -dec 10"
 
-exec --no-startup-id betterlockscreen -l dimblur
+exec --no-startup-id xrandr --output HDMI1 --primary --right-of eDP1
+exec --no-startup-id xrandr --output HDMI-1-1 --primary --right-of eDP-1-1
+exec --no-startup-id xrandr --output eDP-1-1 --mode 1920x1080 --auto --left-of HDMI-1-1 --pos 0x0 --dpi 96
 exec --no-startup-id xset r rate 250 30
+exec --no-startup-id xss-lock -n betterlockscreen --lock dimblur --dim 10 --blur 0.5
+
+exec --no-startup-id ~/.config/polybar/launch_polybar.sh
 exec --no-startup-id ~/.fehbg
-exec --no-startup-id compton -b --config ~/.config/compton/compton.conf
-exec --no-startup-id "sleep 1 && polybar -r -c ~/.config/polybar/polybar top & 2> /dev/null"
-exec --no-startup-id "dunst &"
+
+exec --no-startup-id dunst
+exec --no-startup-id picom -b --experimental-backends --config ~/.config/picom/picom.conf
 exec --no-startup-id redshift -l 1.3521:103.8198 &
 exec --no-startup-id synclient VertScrollDelta=-111
 
-bindsym $mod+x exec "betterlockscreen -l dimblur"
-bindsym Print exec imlib2_grab "$HOME/Pictures/photo-`date +%Y-%m-%d_%H:%M:%S`.png"
+bindsym $mod+minus move scratchpad
+bindsym $mod+Shift+minus scratchpad show
+bindsym $mod+x exec betterlockscreen --lock dimblur --dim 10 --blur 0.5
+bindsym Print exec scrot -u "$HOME/Pictures/photo-`date +%Y-%m-%d_%H:%M:%S`.png" && dunstify "Screenshot Captured!"
