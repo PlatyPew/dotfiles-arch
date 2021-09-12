@@ -24,10 +24,12 @@ Plug 'Xuyuanp/nerdtree-git-plugin', {'on': 'NERDTreeToggle'}
 " File finding
 Plug 'preservim/nerdtree', {'on': 'NERDTreeToggle'}                     " Shows file tree
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } , 'on': 'FZF'}        " Fuzzy finder
-Plug 'junegunn/fzf.vim', {'on': 'FZF'}
+Plug 'junegunn/fzf.vim'
 " Auto-completion
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 "More efficient (lazy) plugins
 Plug 'terryma/vim-multiple-cursors'                                     " Sublime-styled multiple cursors support
 Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
@@ -318,6 +320,11 @@ lua <<EOF
         on_attach = require'completion'.on_attach,
         cmd = { "texlab" },
         flags = { debounce_text_changes = 500 },
+        settings = { texlab = { build = {
+            args = { "-halt-on-error", "%f" },
+            executable = "pdflatex",
+            onSave = true,
+        }, }, },
     }
 EOF
 
@@ -334,6 +341,12 @@ function SetLSPMappings()
     nmap gR :lua vim.lsp.buf.rename()<CR>
 endfunction
 """ End Of LSP Configurations -------------------------------------------------
+
+
+""" Ultisnips Configurations ---------------------------------------------------------
+let g:UltiSnipsExpandTrigger="<c-space>"
+nnoremap <silent><c-u> :Snippets<CR>
+""" End of Ultisnips Configurations --------------------------------------------------
 
 
 """ Vim Fugitive Configurations -----------------------------------------------
@@ -377,6 +390,11 @@ endif
 augroup quote_pair
     autocmd!
     autocmd FileType vim :let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`", '```':'```', "'''":"'''"}
+augroup END
+
+augroup quote_pair
+    autocmd!
+    autocmd FileType tex :let g:AutoPairs = {'(':')', '[':']', '{':'}',"`":"'", "``":"''", '$':'$'}
 augroup END
 """ End Of Autopairs Configurations -------------------------------------------
 
