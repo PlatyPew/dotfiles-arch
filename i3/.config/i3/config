@@ -189,18 +189,39 @@ bindsym XF86AudioMute exec --no-startup-id "amixer -q set Master toggle"
 bindsym XF86MonBrightnessUp exec "xbacklight -inc 10"
 bindsym XF86MonBrightnessDown exec "xbacklight -dec 10"
 
+# Graphical stuff
 exec --no-startup-id xrandr --output HDMI1 --primary --right-of eDP1
 exec --no-startup-id xrandr --output HDMI-1-1 --primary --right-of eDP-1-1
+exec --no-startup-id xrandr --output eDP1 --mode 1920x1080 --auto --left-of HDMI1 --pos 0x0
 exec --no-startup-id xrandr --output eDP-1-1 --mode 1920x1080 --auto --left-of HDMI-1-1 --pos 0x0 --dpi 96
+
+# Keyboard repetition speed
 exec --no-startup-id xset r rate 250 30
+
+# Locks computer after a certain amount of time
+exec --no-startup-id xset 300
 exec --no-startup-id xss-lock -n betterlockscreen --lock dimblur --dim 10 --blur 0.5
 
+# Polybar
 exec --no-startup-id ~/.config/polybar/launch_polybar.sh
+
+# Background image
 exec --no-startup-id ~/.fehbg
 
+# Notifications
 exec --no-startup-id dunst
+
+# Compositor
 exec --no-startup-id picom -b --experimental-backends --config ~/.config/picom/picom.conf
+
+# Warmer colours at night
 exec --no-startup-id redshift -l 1.3521:103.8198 &
+
+# Connect to the sonos
+for_window [class="FLTK"] move scratchpad
+exec --no-startup-id ~/.local/bin/swyh-rs
+
+# I placed this here a long time ago, and have no idea what it does
 exec --no-startup-id synclient VertScrollDelta=-111
 
 bindsym $mod+minus move scratchpad

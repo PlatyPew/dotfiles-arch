@@ -4,6 +4,7 @@ Brave
 Discord
 Steam
 Telegram
+Zoom
 EOF
 )
 
@@ -18,6 +19,9 @@ case "$INIT" in
         steam
         ;;
     Telegram)
-        telegram-desktop
+        PULSE_PROP="filter.want=echo-cancel" telegram-desktop
+        ;;
+    Zoom)
+        zoom
         ;;
 esac
