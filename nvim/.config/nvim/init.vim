@@ -31,7 +31,6 @@ Plug 'nvim-lua/completion-nvim'
 "More efficient (lazy) plugins
 Plug 'terryma/vim-multiple-cursors'                                     " Sublime-styled multiple cursors support
 Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
-Plug 'shime/vim-livedown', {'for': 'md', 'on': 'LivedownToggle'}        " Live preview of markdown in browser
 Plug 'easymotion/vim-easymotion'                                        " Enhanced mobility in vim
 Plug 'preservim/nerdcommenter'                                          " Easy commenting
 Plug 'anyakichi/vim-surround'                                           " Surround highlighted text easier
@@ -89,6 +88,7 @@ augroup spell_check
     autocmd!
     autocmd FileType text,markdown setlocal spell
 augroup END
+let g:tex_flavor = 'latex'
 let g:clipboard = {
   \ 'name': 'xclip',
   \ 'copy': {
@@ -292,22 +292,32 @@ lua <<EOF
     local lspconfig = require'lspconfig'
     lspconfig.clangd.setup{
         on_attach = require'completion'.on_attach,
-        cmd = { "clangd", "--background-index", "--clang-tidy" }
+        cmd = { "clangd", "--background-index", "--clang-tidy" },
+        flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.jedi_language_server.setup{
         on_attach = require'completion'.on_attach,
-        cmd = { "jedi-language-server" }
+        cmd = { "jedi-language-server" },
+        flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.tsserver.setup{
         on_attach = require'completion'.on_attach,
-        cmd = { "typescript-language-server", "--stdio" }
+        cmd = { "typescript-language-server", "--stdio" },
+        flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.bashls.setup{
         on_attach = require'completion'.on_attach,
-        cmd = { "bash-language-server", "start" }
+        cmd = { "bash-language-server", "start" },
+        flags = { debounce_text_changes = 500 },
+    }
+
+    lspconfig.texlab.setup{
+        on_attach = require'completion'.on_attach,
+        cmd = { "texlab" },
+        flags = { debounce_text_changes = 500 },
     }
 EOF
 
@@ -361,18 +371,6 @@ if has('persistent_undo')
 endif
 """ End Of UndoTree Configurations --------------------------------------------
 
-
-""" Livedown Configurations ---------------------------------------------------
-"" Mappings
-" Activate Livedown    \L
-nmap <leader>L :LivedownToggle<CR>
-
-"" Settings
-let g:livedown_autorun = 0
-let g:livedown_open = 1
-let g:livedown_port = 1337
-let g:livedown_browser = 'brave'
-""" End Of Livedown Configurations --------------------------------------------
 
 """ Autopairs Configurations --------------------------------------------------
 "" Settings
