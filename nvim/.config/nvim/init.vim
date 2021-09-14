@@ -48,6 +48,7 @@ Plug 'jbyuki/instant.nvim',
 Plug 'sbdchd/neoformat',
             \ {'for': ['c', 'cpp', 'python', 'javascript'],
             \ 'on': 'Neoformat'}
+Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 
 call plug#end()
 """ End Of Vim-Plug -----------------------------------------------------------
@@ -85,10 +86,11 @@ set splitright                                                          " Set ve
 set splitbelow
 call matchadd('ColorColumn', '\%101v[^\n]')                             " Show colour coloumn only at lines that pass 101 characters
 set noshowmode
-set spelllang=en
-augroup spell_check
+set spelllang=en_gb
+augroup textfiles
     autocmd!
-    autocmd FileType text,markdown setlocal spell
+    autocmd FileType text,markdown,tex setlocal spell
+    autocmd FileType text,markdown,tex highlight clear ColorColumn
 augroup END
 let g:tex_flavor = 'latex'
 let g:clipboard = {
@@ -344,7 +346,7 @@ endfunction
 
 
 """ Ultisnips Configurations ---------------------------------------------------------
-let g:UltiSnipsExpandTrigger="<c-space>"
+let g:UltiSnipsExpandTrigger="<C-n>"
 nnoremap <silent><c-u> :Snippets<CR>
 """ End of Ultisnips Configurations --------------------------------------------------
 
@@ -390,10 +392,6 @@ endif
 augroup quote_pair
     autocmd!
     autocmd FileType vim :let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`", '```':'```', "'''":"'''"}
-augroup END
-
-augroup quote_pair
-    autocmd!
     autocmd FileType tex :let g:AutoPairs = {'(':')', '[':']', '{':'}',"`":"'", "``":"''", '$':'$'}
 augroup END
 """ End Of Autopairs Configurations -------------------------------------------
@@ -432,6 +430,7 @@ require'nvim-treesitter.configs'.setup {
      highlight = {
           enable = true,
           disable = {},
+          additional_vim_regex_highlighting = true,
      },
      refactor = {
           highlight_definitions = { enable = true },
@@ -529,6 +528,13 @@ let g:neoformat_vue_prettier = {
     \ 'stdin': 1,
 \}
 """ End of Neoformat Settings -------------------------------------------------
+
+
+""" Tex Conceal Settings ------------------------------------------------------
+set conceallevel=2
+let g:tex_conceal="abdgm"
+let g:tex_conceal_frac=1
+""" End of Tex Conceal Settings -----------------------------------------------
 
 
 """ Vanilla Terminal Support --------------------------------------------------
