@@ -12,6 +12,7 @@ Plug 'junegunn/rainbow_parentheses.vim', {'on': 'RainbowParentheses!!'} " Adds r
 Plug 'mhinz/vim-startify'                                               " Better startup screen for vim
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight',
             \ {'on': 'NERDTreeToggle'}                                  " Colours for nerd tree
+Plug 'onsails/lspkind-nvim'
 " Syntax highlighting
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}             " Better syntax parser
 Plug 'machakann/vim-highlightedyank'
@@ -30,8 +31,9 @@ Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
+Plug 'jasonrhansen/lspsaga.nvim', {'branch': 'finder-preview-fixes'}
 "More efficient (lazy) plugins
-Plug 'terryma/vim-multiple-cursors'                                     " Sublime-styled multiple cursors support
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}                     " Sublime-styled multiple cursors support
 Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
 Plug 'easymotion/vim-easymotion'                                        " Enhanced mobility in vim
 Plug 'preservim/nerdcommenter'                                          " Easy commenting
@@ -288,38 +290,43 @@ inoremap <silent><expr><s-tab> pumvisible() ? "\<C-p>" : "\<s-tab>"
 set completeopt=menuone,noinsert,noselect
 set shortmess+=c
 let g:completion_sorting = "length"
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy', 'all']
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 let g:completion_confirm_key = ""
 
 " LSP settings
 lua <<EOF
     local lspconfig = require'lspconfig'
+    local util = require'lspconfig/util'
+    local completion = require'completion'
+
     lspconfig.clangd.setup{
-        on_attach = require'completion'.on_attach,
+        on_attach = completion.on_attach,
         cmd = { "clangd", "--background-index", "--clang-tidy" },
         flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.jedi_language_server.setup{
-        on_attach = require'completion'.on_attach,
+        on_attach = completion.on_attach,
         cmd = { "jedi-language-server" },
         flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.tsserver.setup{
-        on_attach = require'completion'.on_attach,
+        on_attach = completion.on_attach,
         cmd = { "typescript-language-server", "--stdio" },
+        root_dir = util.path.dirname,
         flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.bashls.setup{
-        on_attach = require'completion'.on_attach,
+        on_attach = completion.on_attach,
         cmd = { "bash-language-server", "start" },
+        root_dir = util.path.dirname,
         flags = { debounce_text_changes = 500 },
     }
 
     lspconfig.texlab.setup{
-        on_attach = require'completion'.on_attach,
+        on_attach = completion.on_attach,
         cmd = { "texlab" },
         flags = { debounce_text_changes = 500 },
         settings = { texlab = { build = {
@@ -328,19 +335,48 @@ lua <<EOF
             onSave = true,
         }, }, },
     }
+
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+    local general_on_attach = function(client, bufnr)
+        if client.resolved_capabilities.completion then
+            completion.on_attach(client, bufnr)
+        end
+    end
+
+    lspconfig.html.setup {
+        capabilities = capabilities,
+        on_attach = general_on_attach,
+        cmd = { "vscode-html-languageserver", "--stdio" },
+        flags = { debounce_text_changes = 500 },
+    }
+
+    lspconfig.cssls.setup {
+        capabilities = capabilities,
+        on_attach = general_on_attach,
+        cmd = { "vscode-css-languageserver", "--stdio" },
+        flags = { debounce_text_changes = 500 },
+    }
+
+    require('lspkind').init({
+        with_text = true,
+        preset = 'default',
+    })
+
+    require'lspsaga'.init_lsp_saga()
 EOF
 
 augroup lspmappings
     autocmd!
-    autocmd FileType c,cpp,python,javascript call SetLSPMappings()
+    autocmd FileType c,cpp,python,javascript,html,css,sh call SetLSPMappings()
 augroup END
 
 function SetLSPMappings()
-    nmap gd :lua vim.lsp.buf.definition()<CR>
-    nmap gh :lua vim.lsp.buf.hover()<CR>
-    nmap gre :lua vim.lsp.buf.references()<CR>
-    nmap gi :lua vim.lsp.buf.implementation()<CR>
-    nmap gR :lua vim.lsp.buf.rename()<CR>
+    nmap gd :Lspsaga preview_definition<CR>
+    nmap gh :Lspsaga hover_doc<CR>
+    nmap gre :Lspsaga lsp_finder<CR>
+    nmap gR :Lspsaga rename<CR>
 endfunction
 """ End Of LSP Configurations -------------------------------------------------
 
@@ -395,13 +431,6 @@ augroup quote_pair
     autocmd FileType tex :let g:AutoPairs = {'(':')', '[':']', '{':'}',"`":"'", "``":"''", '$':'$'}
 augroup END
 """ End Of Autopairs Configurations -------------------------------------------
-
-
-""" Tagbar Configurations -----------------------------------------------------
-"" Mappings
-" Activate Tabar    Shift-Tab
-nmap <S-Tab> :TagbarToggle<CR>
-""" End Of Tagbar Configurations ----------------------------------------------
 
 
 """ Nerd Commenter Configurations ---------------------------------------------
