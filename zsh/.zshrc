@@ -228,7 +228,7 @@ ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=220,bold'
 alias vi="nvim -O"
 alias :q='exit'
 alias cls='clear'
-alias ls='exa --git'
+alias ls='exa --git --icons'
 alias cat="bat --theme 'Monokai Extended'"
 alias sonos="nohup swyh-rs 2>&1 > /dev/null & disown %$(jobs | grep swyh-rs | awk '{print $1}' | tr -d '[]')"
 ############################################################
