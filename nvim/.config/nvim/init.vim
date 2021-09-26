@@ -5,8 +5,7 @@ call plug#begin()                                                       " Plugin
 " Colours
 Plug 'dracula/vim'                                                      " Colour Scheme SpaceVimDark
 " User Interface
-Plug 'vim-airline/vim-airline'                                          " Plugin that gives blocks on the top and bottom neovim
-Plug 'vim-airline/vim-airline-themes'                                   " Imports a library of themes for vim-arline
+Plug 'shadmansaleh/lualine.nvim'
 Plug 'ryanoasis/vim-devicons'                                           " Allows for nerdfont icons to be displayed
 Plug 'junegunn/rainbow_parentheses.vim', {'on': 'RainbowParentheses!!'} " Adds rainbow colouring for nested parenthesis
 Plug 'mhinz/vim-startify'                                               " Better startup screen for vim
@@ -191,11 +190,80 @@ let g:highlightedyank_highlight_duration = -1
 
 
 """ Vim-Airline Configurations ------------------------------------------------
-let g:airline_powerline_fonts = 1
-let g:airline_section_warning = ''
-let g:airline_section_z = ' %{strftime("%-I:%M %p")}'
-let g:airline_theme='dracula'
-let g:airline#extensions#tabline#enabled = 1
+lua <<EOF
+require'lualine'.setup {
+    options = {
+        icons_enabled = true,
+        theme = 'dracula',
+        section_separators = {left = '', right = ''},
+        component_separators = {left = '', right = ''},
+    },
+    sections = {
+        lualine_a = {'mode'},
+        lualine_b = {'branch', {
+                'diff',
+                colored = false,
+            }
+        },
+        lualine_c = {'filename', 'filesize'},
+        lualine_x = {
+            'location',
+            {
+                'filetype',
+                colored = true,
+            },
+        },
+        lualine_y = {
+            {
+                'encoding',
+                padding = { left = 1, right = 0 },
+            },
+            'fileformat',
+        },
+        lualine_z = {
+            {
+                'diagnostics',
+                sources = { 'nvim_lsp' },
+                symbols = { error = ' ', warn = ' ', info = ' ' },
+                diagnostics_color = {
+                    error = {bg = "#282a36", fg = "#ff5555"},
+                    warn = {bg = "#282a36", fg = "#ffb86c"},
+                    info = {bg = "#282a36", fg = "#f1fa8c"},
+                }
+            },
+        },
+    },
+    inactive_sections = {
+        lualine_a = {},
+        lualine_b = {'branch', {
+                'diff',
+                colored = false,
+            }
+        },
+        lualine_c = {'filename'},
+        lualine_x = {'filetype'},
+    },
+    tabline = {
+        lualine_a = {
+            {
+                'buffers',
+                buffers_color = {
+                    inactive = {bg = '#44475a', fg = '#ffffff'},
+                },
+                padding = 0,
+            }
+        },
+        lualine_y = {
+            function () return [[buffers]] end,
+            {
+                'filetype',
+                icon_only = true,
+            },
+        }
+    },
+    extensions = {'fzf', 'chadtree'},
+}
+EOF
 """ End Of Vim-Airline Configurations -----------------------------------------
 
 
