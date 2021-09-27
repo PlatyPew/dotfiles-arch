@@ -25,13 +25,12 @@ Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
 " Auto-completion
 Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-lua/completion-nvim'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 Plug 'jasonrhansen/lspsaga.nvim', {'branch': 'finder-preview-fixes'}
 "More efficient (lazy) plugins
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}                     " Sublime-styled multiple cursors support
-Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
+Plug 'windwp/nvim-autopairs'
 Plug 'easymotion/vim-easymotion'                                        " Enhanced mobility in vim
 Plug 'preservim/nerdcommenter'                                          " Easy commenting
 Plug 'anyakichi/vim-surround'                                           " Surround highlighted text easier
@@ -370,53 +369,47 @@ highlight PmenuSel guifg=#000000 guibg=#bd93f9
 highlight LspDiagnosticsDefaultError ctermfg=9
 highlight LspDiagnosticsDefaultWarning ctermfg=3
 
-"" Mappings
-" Go down    Tab
-inoremap <silent><expr><tab>  pumvisible() ? "\<C-n>" : "\<tab>"
-" Go up      Shift-Tab
-inoremap <silent><expr><s-tab> pumvisible() ? "\<C-p>" : "\<s-tab>"
-
-"" Settings
-set completeopt=menuone,noinsert,noselect
-set shortmess+=c
-let g:completion_sorting = "length"
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
-let g:completion_confirm_key = ""
-
 " LSP settings
 lua <<EOF
+vim.g.coq_settings = {
+    auto_start = 'shut-up',
+    clients = {
+        tabnine = {
+            enabled = true,
+        },
+    },
+    keymap = {
+        recommended = false,
+    },
+}
+
 local lspconfig = require'lspconfig'
 local util = require'lspconfig/util'
-local completion = require'completion'
+local coq = require'coq'
 
-lspconfig.clangd.setup{
-    on_attach = completion.on_attach,
+lspconfig.clangd.setup(coq.lsp_ensure_capabilities{
     cmd = { "clangd", "--background-index", "--clang-tidy" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.jedi_language_server.setup{
-    on_attach = completion.on_attach,
+lspconfig.jedi_language_server.setup(coq.lsp_ensure_capabilities{
     cmd = { "jedi-language-server" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.tsserver.setup{
-    on_attach = completion.on_attach,
+lspconfig.tsserver.setup(coq.lsp_ensure_capabilities{
     cmd = { "typescript-language-server", "--stdio" },
     root_dir = util.path.dirname,
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.bashls.setup{
-    on_attach = completion.on_attach,
+lspconfig.bashls.setup(coq.lsp_ensure_capabilities{
     cmd = { "bash-language-server", "start" },
     root_dir = util.path.dirname,
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.texlab.setup{
-    on_attach = completion.on_attach,
+lspconfig.texlab.setup(coq.lsp_ensure_capabilities{
     cmd = { "texlab" },
     flags = { debounce_text_changes = 500 },
     settings = { texlab = { build = {
@@ -424,30 +417,22 @@ lspconfig.texlab.setup{
         executable = "pdflatex",
         onSave = true,
     }, }, },
-}
+})
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-local general_on_attach = function(client, bufnr)
-    if client.resolved_capabilities.completion then
-        completion.on_attach(client, bufnr)
-    end
-end
-
-lspconfig.html.setup {
+lspconfig.html.setup(coq.lsp_ensure_capabilities{
     capabilities = capabilities,
-    on_attach = general_on_attach,
     cmd = { "vscode-html-languageserver", "--stdio" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.cssls.setup {
+lspconfig.cssls.setup(coq.lsp_ensure_capabilities{
     capabilities = capabilities,
-    on_attach = general_on_attach,
     cmd = { "vscode-css-languageserver", "--stdio" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
 require('lspkind').init({
     with_text = true,
@@ -480,12 +465,6 @@ function SetLSPMappings()
     nmap <silent>gc :Lspsaga code_action<CR>
 endfunction
 """ End Of LSP Configurations -------------------------------------------------
-
-
-""" Ultisnips Configurations ---------------------------------------------------------
-let g:UltiSnipsExpandTrigger="<C-n>"
-nnoremap <silent><c-u> :Snippets<CR>
-""" End of Ultisnips Configurations --------------------------------------------------
 
 
 """ Vim Fugitive Configurations -----------------------------------------------
@@ -526,11 +505,43 @@ endif
 
 """ Autopairs Configurations --------------------------------------------------
 "" Settings
-augroup quote_pair
-    autocmd!
-    autocmd FileType vim :let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`", '```':'```', "'''":"'''"}
-    autocmd FileType tex :let g:AutoPairs = {'(':')', '[':']', '{':'}',"`":"'", "``":"''", '$':'$'}
-augroup END
+lua <<EOF
+local remap = vim.api.nvim_set_keymap
+local npairs = require('nvim-autopairs')
+
+npairs.setup({ map_bs = false })
+
+-- these mappings are coq recommended mappings unrelated to nvim-autopairs
+remap('i', '<esc>', [[pumvisible() ? "<c-e><esc>" : "<esc>"]], { expr = true, noremap = true })
+remap('i', '<c-c>', [[pumvisible() ? "<c-e><c-c>" : "<c-c>"]], { expr = true, noremap = true })
+remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap = true })
+remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
+
+-- skip it, if you use another global object
+_G.MUtils= {}
+
+MUtils.CR = function()
+if vim.fn.pumvisible() ~= 0 then
+    if vim.fn.complete_info({ 'selected' }).selected ~= -1 then
+        return npairs.esc('<c-y>')
+    else
+        return npairs.esc('<c-e>') .. npairs.autopairs_cr()
+    end
+    else
+        return npairs.autopairs_cr()
+    end
+end
+remap('i', '<cr>', 'v:lua.MUtils.CR()', { expr = true, noremap = true })
+
+MUtils.BS = function()
+    if vim.fn.pumvisible() ~= 0 and vim.fn.complete_info({ 'mode' }).mode == 'eval' then
+        return npairs.esc('<c-e>') .. npairs.autopairs_bs()
+    else
+        return npairs.autopairs_bs()
+    end
+end
+remap('i', '<bs>', 'v:lua.MUtils.BS()', { expr = true, noremap = true })
+EOF
 """ End Of Autopairs Configurations -------------------------------------------
 
 
@@ -565,9 +576,6 @@ require'nvim-treesitter.configs'.setup {
     refactor = {
         highlight_definitions = { enable = true },
     },
-    indent = {
-        enable = true,
-    }
 }
 
 -- Fix rainbow paretheses
