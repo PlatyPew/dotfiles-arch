@@ -48,6 +48,8 @@ Plug 'sbdchd/neoformat',
             \ 'on': 'Neoformat'}
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lewis6991/impatient.nvim'
+Plug 'andweeb/presence.nvim'
+Plug 'abecodes/tabout.nvim'
 
 call plug#end()
 """ End Of Vim-Plug -----------------------------------------------------------
@@ -542,7 +544,7 @@ MUtils.BS = function()
 end
 remap('i', '<bs>', 'v:lua.MUtils.BS()', { expr = true, noremap = true })
 EOF
-""" End Of Autopairs Configurations -------------------------------------------
+""" End Of Autopairs Configurations ------------------------------------------
 
 
 """ Nerd Commenter Configurations ---------------------------------------------
@@ -666,3 +668,12 @@ set conceallevel=2
 let g:tex_conceal="abdgm"
 let g:tex_conceal_frac=1
 """ End of Tex Conceal Settings -----------------------------------------------
+
+
+lua <<EOF
+-- Discord Rich Presence
+require('presence'):setup({ enable_line_number = true })
+
+-- Tabout
+require'tabout'.setup()
+EOF
