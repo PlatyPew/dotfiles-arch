@@ -5,13 +5,10 @@ call plug#begin()                                                       " Plugin
 " Colours
 Plug 'dracula/vim'                                                      " Colour Scheme SpaceVimDark
 " User Interface
-Plug 'vim-airline/vim-airline'                                          " Plugin that gives blocks on the top and bottom neovim
-Plug 'vim-airline/vim-airline-themes'                                   " Imports a library of themes for vim-arline
-Plug 'ryanoasis/vim-devicons'                                           " Allows for nerdfont icons to be displayed
+Plug 'shadmansaleh/lualine.nvim'
+Plug 'kyazdani42/nvim-web-devicons'                                           " Allows for nerdfont icons to be displayed
 Plug 'junegunn/rainbow_parentheses.vim', {'on': 'RainbowParentheses!!'} " Adds rainbow colouring for nested parenthesis
 Plug 'mhinz/vim-startify'                                               " Better startup screen for vim
-Plug 'tiagofumo/vim-nerdtree-syntax-highlight',
-            \ {'on': 'NERDTreeToggle'}                                  " Colours for nerd tree
 Plug 'onsails/lspkind-nvim'
 " Syntax highlighting
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}             " Better syntax parser
@@ -21,20 +18,19 @@ Plug 'machakann/vim-highlightedyank'
 " Git
 Plug 'airblade/vim-gitgutter'                                           " Shows git diff in vim's gutter
 Plug 'tpope/vim-fugitive'                                               " Git wrapper
-Plug 'Xuyuanp/nerdtree-git-plugin', {'on': 'NERDTreeToggle'}
 " File finding
-Plug 'preservim/nerdtree', {'on': 'NERDTreeToggle'}                     " Shows file tree
+Plug 'ms-jpq/chadtree', {'branch': 'chad'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } , 'on': 'FZF'}        " Fuzzy finder
 Plug 'junegunn/fzf.vim'
+Plug 'airblade/vim-rooter'
 " Auto-completion
 Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-lua/completion-nvim'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 Plug 'jasonrhansen/lspsaga.nvim', {'branch': 'finder-preview-fixes'}
 "More efficient (lazy) plugins
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}                     " Sublime-styled multiple cursors support
-Plug 'jiangmiao/auto-pairs'                                             " Insert/delete brackets/quotes in pairs
+Plug 'windwp/nvim-autopairs'
 Plug 'easymotion/vim-easymotion'                                        " Enhanced mobility in vim
 Plug 'preservim/nerdcommenter'                                          " Easy commenting
 Plug 'anyakichi/vim-surround'                                           " Surround highlighted text easier
@@ -51,9 +47,23 @@ Plug 'sbdchd/neoformat',
             \ {'for': ['c', 'cpp', 'python', 'javascript'],
             \ 'on': 'Neoformat'}
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
+Plug 'lewis6991/impatient.nvim'
 
 call plug#end()
 """ End Of Vim-Plug -----------------------------------------------------------
+
+
+""" Optimisation ---------------------------------------------------------------
+"" Lua caching
+lua require('impatient')
+set lazyredraw
+set ttyfast
+set foldmethod=syntax
+set foldmethod=expr
+set showcmd
+set noruler
+" set eventignore=all " Ultimate optimisation. Basically no plugins or anything run
+""" End Of Optimisation ---------------------------------------------------------
 
 
 """ Vanilla Colouring ---------------------------------------------------------
@@ -106,17 +116,6 @@ let g:clipboard = {
   \ 'cache_enabled': 0,
   \ }
 """ End Of Vanilla Configurations ----------------------------------------------
-
-
-""" Optimisation ---------------------------------------------------------------
-set lazyredraw
-set ttyfast
-set foldmethod=syntax
-set foldmethod=expr
-set showcmd
-set noruler
-" set eventignore=all " Ultimate optimisation. Basically no plugins or anything run
-""" End Of Optimisation ---------------------------------------------------------
 
 
 """ Vanilla Rebindings -------------------------------------------------------
@@ -194,11 +193,80 @@ let g:highlightedyank_highlight_duration = -1
 
 
 """ Vim-Airline Configurations ------------------------------------------------
-let g:airline_powerline_fonts = 1
-let g:airline_section_warning = ''
-let g:airline_section_z = ' %{strftime("%-I:%M %p")}'
-let g:airline_theme='dracula'
-let g:airline#extensions#tabline#enabled = 1
+lua <<EOF
+require'lualine'.setup {
+    options = {
+        icons_enabled = true,
+        theme = 'dracula',
+        section_separators = {left = '', right = ''},
+        component_separators = {left = '', right = ''},
+    },
+    sections = {
+        lualine_a = {'mode'},
+        lualine_b = {'branch', {
+                'diff',
+                colored = false,
+            }
+        },
+        lualine_c = {'filename', 'filesize'},
+        lualine_x = {
+            'location',
+            {
+                'filetype',
+                colored = true,
+            },
+        },
+        lualine_y = {
+            {
+                'encoding',
+                padding = { left = 1, right = 0 },
+            },
+            'fileformat',
+        },
+        lualine_z = {
+            {
+                'diagnostics',
+                sources = { 'nvim_lsp' },
+                symbols = { error = ' ', warn = ' ', info = ' ' },
+                diagnostics_color = {
+                    error = {bg = "#282a36", fg = "#ff5555"},
+                    warn = {bg = "#282a36", fg = "#ffb86c"},
+                    info = {bg = "#282a36", fg = "#f1fa8c"},
+                }
+            },
+        },
+    },
+    inactive_sections = {
+        lualine_a = {},
+        lualine_b = {'branch', {
+                'diff',
+                colored = false,
+            }
+        },
+        lualine_c = {'filename'},
+        lualine_x = {'filetype'},
+    },
+    tabline = {
+        lualine_a = {
+            {
+                'buffers',
+                buffers_color = {
+                    inactive = {bg = '#44475a', fg = '#ffffff'},
+                },
+                padding = 0,
+            }
+        },
+        lualine_y = {
+            function () return [[buffers]] end,
+            {
+                'filetype',
+                icon_only = true,
+            },
+        }
+    },
+    extensions = {'fzf', 'chadtree'},
+}
+EOF
 """ End Of Vim-Airline Configurations -----------------------------------------
 
 
@@ -228,46 +296,30 @@ set updatetime=50                                                       " Update
 """ End Of Git Gutter Configurations ------------------------------------------
 
 
-""" Nerd Tree Configurations --------------------------------------------------
+""" CHAD Tree Configurations --------------------------------------------------
 "" Mappings
-" Activate Nerd Tree    Ctrl-o
-nmap <C-o> :NERDTreeToggle<CR>
-
-"" Settings
-let g:NERDTreeDirArrowExpandable = ' '                                 " Closed directory icon
-let g:NERDTreeDirArrowCollapsible = ' '                                " Opened directory icon
-let NERDTreeShowHidden = 0
-augroup nerdtree_stuff
-    autocmd!
-    autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-augroup END
-
-" Highlight full name and only certain extensions
-let g:NERDTreeFileExtensionHighlightFullName = 1
-let g:NERDTreeExactMatchHighlightFullName = 1
-let g:NERDTreePatternMatchHighlightFullName = 1
-let g:NERDTreeSyntaxDisableDefaultExtensions = 1
-let g:NERDTreeSyntaxDisableDefaultExactMatches = 1
-let g:NERDTreeSyntaxDisableDefaultPatternMatches = 1
-let g:NERDTreeSyntaxEnabledExtensions = ['c', 'h', 'cpp', 'py', 'rb', 'js', 'css', 'html', 'java',
-  \ 'class', 'md']
-let g:NERDTreeSyntaxEnabledExactMatches = ['venv', 'node_modules', 'favicon.ico']
+" Activate CHAD Tree    Ctrl-o
+nmap <C-o> :CHADopen --version-ctl<CR>
 
 " Open directories with nerdtree instead of netrw
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists('s:std_in') |
-    \ execute 'NERDTree' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
-""" End Of Nerd Tree Configurations -------------------------------------------
+    \ execute 'CHADopen' argv()[0] | wincmd p | enew | execute 'cd '.argv()[0] | endif
+""" End Of CHAD Tree Configurations -------------------------------------------
 
 
 """ FZF Configurations --------------------------------------------------------
 "" Settings
-set rtp+=/usr/local/opt/fzf
-let g:fzf_layout = { 'down': '~30%' }
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
-  \ 'ctrl-s': 'split',
+  \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
+let g:fzf_tags_command = 'ctags -R'
+let g:fzf_layout = {'up':'~90%', 'window': { 'width': 0.8, 'height': 0.8,'yoffset':0.5,'xoffset': 0.5, 'highlight': 'Constant', 'border': 'sharp' } }
+
+let $FZF_DEFAULT_OPTS = '--layout=reverse --info=inline'
+let $FZF_DEFAULT_COMMAND="rg --files --hidden --no-ignore-vcs -g '!.git/*'"
+
 let g:fzf_colors =
 \ { 'fg':      ['fg', 'Normal'],
   \ 'bg':      ['bg', 'Normal'],
@@ -275,16 +327,38 @@ let g:fzf_colors =
   \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
   \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
   \ 'hl+':     ['fg', 'Statement'],
-  \ 'info':    ['fg', 'Type'],
+  \ 'info':    ['fg', 'PreProc'],
   \ 'border':  ['fg', 'Ignore'],
-  \ 'prompt':  ['fg', 'Character'],
+  \ 'prompt':  ['fg', 'Conditional'],
   \ 'pointer': ['fg', 'Exception'],
   \ 'marker':  ['fg', 'Keyword'],
   \ 'spinner': ['fg', 'Label'],
   \ 'header':  ['fg', 'Comment'] }
 
+let $BAT_THEME = 'Dracula'
+command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(<q-args>, fzf#vim#with_preview({'options': ['--layout=reverse', '--info=inline']}), <bang>0)
+
+" Ripgrep advanced
+function! RipgrepFzf(query, fullscreen)
+  let command_fmt = 'rg --hidden --column --line-number --no-heading --color=always --smart-case %s || true'
+  let initial_command = printf(command_fmt, shellescape(a:query))
+  let reload_command = printf(command_fmt, '{q}')
+  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+endfunction
+
+command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
+
+" Git grep
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number '.shellescape(<q-args>), 0,
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+
 "" Mappings
-nnoremap <silent><C-p> :FZF --preview=head\ -13\ {}<CR>
+nnoremap <silent><C-p> :Files<CR>
+nnoremap <silent><C-g> :RG<CR>
 """ End Of FZF Configurations -------------------------------------------------
 
 
@@ -295,53 +369,47 @@ highlight PmenuSel guifg=#000000 guibg=#bd93f9
 highlight LspDiagnosticsDefaultError ctermfg=9
 highlight LspDiagnosticsDefaultWarning ctermfg=3
 
-"" Mappings
-" Go down    Tab
-inoremap <silent><expr><tab>  pumvisible() ? "\<C-n>" : "\<tab>"
-" Go up      Shift-Tab
-inoremap <silent><expr><s-tab> pumvisible() ? "\<C-p>" : "\<s-tab>"
-
-"" Settings
-set completeopt=menuone,noinsert,noselect
-set shortmess+=c
-let g:completion_sorting = "length"
-let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
-let g:completion_confirm_key = ""
-
 " LSP settings
 lua <<EOF
+vim.g.coq_settings = {
+    auto_start = 'shut-up',
+    clients = {
+        tabnine = {
+            enabled = true,
+        },
+    },
+    keymap = {
+        recommended = false,
+    },
+}
+
 local lspconfig = require'lspconfig'
 local util = require'lspconfig/util'
-local completion = require'completion'
+local coq = require'coq'
 
-lspconfig.clangd.setup{
-    on_attach = completion.on_attach,
+lspconfig.clangd.setup(coq.lsp_ensure_capabilities{
     cmd = { "clangd", "--background-index", "--clang-tidy" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.jedi_language_server.setup{
-    on_attach = completion.on_attach,
+lspconfig.jedi_language_server.setup(coq.lsp_ensure_capabilities{
     cmd = { "jedi-language-server" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.tsserver.setup{
-    on_attach = completion.on_attach,
+lspconfig.tsserver.setup(coq.lsp_ensure_capabilities{
     cmd = { "typescript-language-server", "--stdio" },
     root_dir = util.path.dirname,
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.bashls.setup{
-    on_attach = completion.on_attach,
+lspconfig.bashls.setup(coq.lsp_ensure_capabilities{
     cmd = { "bash-language-server", "start" },
     root_dir = util.path.dirname,
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.texlab.setup{
-    on_attach = completion.on_attach,
+lspconfig.texlab.setup(coq.lsp_ensure_capabilities{
     cmd = { "texlab" },
     flags = { debounce_text_changes = 500 },
     settings = { texlab = { build = {
@@ -349,37 +417,39 @@ lspconfig.texlab.setup{
         executable = "pdflatex",
         onSave = true,
     }, }, },
-}
+})
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-local general_on_attach = function(client, bufnr)
-    if client.resolved_capabilities.completion then
-        completion.on_attach(client, bufnr)
-    end
-end
-
-lspconfig.html.setup {
+lspconfig.html.setup(coq.lsp_ensure_capabilities{
     capabilities = capabilities,
-    on_attach = general_on_attach,
     cmd = { "vscode-html-languageserver", "--stdio" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
-lspconfig.cssls.setup {
+lspconfig.cssls.setup(coq.lsp_ensure_capabilities{
     capabilities = capabilities,
-    on_attach = general_on_attach,
     cmd = { "vscode-css-languageserver", "--stdio" },
     flags = { debounce_text_changes = 500 },
-}
+})
 
 require('lspkind').init({
     with_text = true,
     preset = 'default',
 })
 
-require'lspsaga'.init_lsp_saga()
+require'lspsaga'.init_lsp_saga{
+    finder_action_keys = {
+        open = {'<CR>', 'o'}, quit = {'q', '<esc>', '<C-c>'},
+    },
+    code_action_keys = {
+        quit = {'q', '<esc>', '<C-c>'}
+    },
+    rename_action_keys = {
+        quit = {'<esc>', '<C-c>'}
+    },
+}
 EOF
 
 augroup lspmappings
@@ -388,18 +458,13 @@ augroup lspmappings
 augroup END
 
 function SetLSPMappings()
-    nmap gd :Lspsaga preview_definition<CR>
-    nmap gh :Lspsaga hover_doc<CR>
-    nmap gre :Lspsaga lsp_finder<CR>
-    nmap gR :Lspsaga rename<CR>
+    nmap <silent>gd :Lspsaga preview_definition<CR>
+    nmap <silent>gh :Lspsaga hover_doc<CR>
+    nmap <silent>gf :Lspsaga lsp_finder<CR>
+    nmap <silent>gr :Lspsaga rename<CR>
+    nmap <silent>gc :Lspsaga code_action<CR>
 endfunction
 """ End Of LSP Configurations -------------------------------------------------
-
-
-""" Ultisnips Configurations ---------------------------------------------------------
-let g:UltiSnipsExpandTrigger="<C-n>"
-nnoremap <silent><c-u> :Snippets<CR>
-""" End of Ultisnips Configurations --------------------------------------------------
 
 
 """ Vim Fugitive Configurations -----------------------------------------------
@@ -440,11 +505,43 @@ endif
 
 """ Autopairs Configurations --------------------------------------------------
 "" Settings
-augroup quote_pair
-    autocmd!
-    autocmd FileType vim :let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`", '```':'```', "'''":"'''"}
-    autocmd FileType tex :let g:AutoPairs = {'(':')', '[':']', '{':'}',"`":"'", "``":"''", '$':'$'}
-augroup END
+lua <<EOF
+local remap = vim.api.nvim_set_keymap
+local npairs = require('nvim-autopairs')
+
+npairs.setup({ map_bs = false })
+
+-- these mappings are coq recommended mappings unrelated to nvim-autopairs
+remap('i', '<esc>', [[pumvisible() ? "<c-e><esc>" : "<esc>"]], { expr = true, noremap = true })
+remap('i', '<c-c>', [[pumvisible() ? "<c-e><c-c>" : "<c-c>"]], { expr = true, noremap = true })
+remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap = true })
+remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
+
+-- skip it, if you use another global object
+_G.MUtils= {}
+
+MUtils.CR = function()
+if vim.fn.pumvisible() ~= 0 then
+    if vim.fn.complete_info({ 'selected' }).selected ~= -1 then
+        return npairs.esc('<c-y>')
+    else
+        return npairs.esc('<c-e>') .. npairs.autopairs_cr()
+    end
+    else
+        return npairs.autopairs_cr()
+    end
+end
+remap('i', '<cr>', 'v:lua.MUtils.CR()', { expr = true, noremap = true })
+
+MUtils.BS = function()
+    if vim.fn.pumvisible() ~= 0 and vim.fn.complete_info({ 'mode' }).mode == 'eval' then
+        return npairs.esc('<c-e>') .. npairs.autopairs_bs()
+    else
+        return npairs.autopairs_bs()
+    end
+end
+remap('i', '<bs>', 'v:lua.MUtils.BS()', { expr = true, noremap = true })
+EOF
 """ End Of Autopairs Configurations -------------------------------------------
 
 
@@ -470,28 +567,15 @@ let g:doge_doc_standard_c = 'kernel_doc'
 "" Enable tree sitter
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-     ensure_installed = "maintained",
-     highlight = {
-          enable = true,
-          disable = {},
-          additional_vim_regex_highlighting = true,
-     },
-     refactor = {
-          highlight_definitions = { enable = true },
-          smart_rename = {
-               enable = true,
-               keymaps = {
-                    smart_rename = "grr",
-               },
-          },
-          navigation = {
-               enable = true,
-               keymaps = {
-                    goto_definition = "gnd",
-                    list_definitions = "gnD",
-               },
-          },
-     },
+    ensure_installed = "maintained",
+    highlight = {
+        enable = true,
+        disable = {},
+        additional_vim_regex_highlighting = true,
+    },
+    refactor = {
+        highlight_definitions = { enable = true },
+    },
 }
 
 -- Fix rainbow paretheses
@@ -501,6 +585,9 @@ hlmap.error = nil
 hlmap["punctuation.delimiter"] = "Delimiter"
 hlmap["punctuation.bracket"] = nil
 EOF
+
+"" Underline definitions
+highlight TSDefinitionUsage gui=underline
 """ End of TreeSitter ---------------------------------------------------------
 
 """ Instant Settings-----------------------------------------------------------
@@ -579,71 +666,3 @@ set conceallevel=2
 let g:tex_conceal="abdgm"
 let g:tex_conceal_frac=1
 """ End of Tex Conceal Settings -----------------------------------------------
-
-
-""" Vanilla Terminal Support --------------------------------------------------
-"" Mappings
-" Spawn shell \s
-nmap <leader>s :call StartShell()<CR> i
-
-"" Settings
-augroup term_nonumber
-    autocmd!
-    autocmd TermOpen * setlocal nonumber norelativenumber                        " Set no number when opening terminal
-augroup END
-" Allow better window switching in terminal mode
-augroup vimrc_term
-    autocmd!
-    autocmd WinEnter term://* nohlsearch
-    autocmd WinEnter term://* startinsert
-    autocmd TermOpen * setlocal listchars= | set nocursorline | set nocursorcolumn
-    autocmd TermOpen * tnoremap <buffer> <C-h> <C-\><C-n><C-w>h
-    autocmd TermOpen * tnoremap <buffer> <C-j> <C-\><C-n><C-w>j
-    autocmd TermOpen * tnoremap <buffer> <C-k> <C-\><C-n><C-w>k
-    autocmd TermOpen * tnoremap <buffer> <C-l> <C-\><C-n><C-w>l
-    autocmd TermOpen * tnoremap <buffer> <Esc> <C-\><C-n>
-augroup END
-
-"" Functions
-function StartShell()
-    set shell=/bin/zsh
-    silent execute('vsp')
-    silent execute('term')
-endfunction
-""" End Of Vanilla Terminal Support ------------------------------------------
-
-
-""" Vanilla IDE Mode ----------------------------------------------------------
-"" Mappings
-" Activate IDE mode    \i
-nmap <leader>i :call ToggleIDE()<CR>
-
-let s:ide = 0
-function ToggleIDE()
-    if s:ide
-        silent execute("norm \<C-h>")
-        silent execute('vertical resize +6')
-        silent execute('NERDTreeToggle')
-        silent execute("norm \<C-j>")
-        augroup stop_insertmode
-            autocmd!
-            autocmd WinEnter * stopinsert
-        augroup END
-        silent execute('q')
-        let s:ide = 0
-    else
-        silent execute('NERDTreeToggle')
-        silent execute('vertical resize -6')
-        silent execute("norm \<C-l>")
-        silent execute('sp')
-        silent execute('resize -10')
-        silent execute('term')
-        augroup start_insertmode
-            autocmd!
-            autocmd WinEnter term://* startinsert
-        augroup END
-        silent execute("norm \<C-k>")
-        let s:ide = 1
-    endif
-endfunction
-""" End Of Vanilla IDE Mode ---------------------------------------------------
