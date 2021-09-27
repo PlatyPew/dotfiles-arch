@@ -19,7 +19,7 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'airblade/vim-gitgutter'                                           " Shows git diff in vim's gutter
 Plug 'tpope/vim-fugitive'                                               " Git wrapper
 " File finding
-Plug 'ms-jpq/chadtree', {'branch': 'chad'}
+Plug 'ms-jpq/chadtree', {'branch': 'chad', 'on': 'CHADopen'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } , 'on': 'FZF'}        " Fuzzy finder
 Plug 'junegunn/fzf.vim'
 Plug 'airblade/vim-rooter'
@@ -187,7 +187,7 @@ vnoremap K :m '<-2'<CR>gv=gv
 
 """ Highlighted Yank Configurations -------------------------------------------
 "" Colours
-highlight HighlightedyankRegion cterm=reverse
+highlight HighlightedyankRegion gui=reverse
 
 "" Settings
 let g:highlightedyank_highlight_duration = -1
