@@ -9,7 +9,6 @@ Plug 'shadmansaleh/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'                                           " Allows for nerdfont icons to be displayed
 Plug 'junegunn/rainbow_parentheses.vim', {'on': 'RainbowParentheses!!'} " Adds rainbow colouring for nested parenthesis
 Plug 'mhinz/vim-startify'                                               " Better startup screen for vim
-Plug 'onsails/lspkind-nvim'
 " Syntax highlighting
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}             " Better syntax parser
 Plug 'machakann/vim-highlightedyank'
@@ -434,11 +433,6 @@ lspconfig.cssls.setup(coq.lsp_ensure_capabilities{
     capabilities = capabilities,
     cmd = { "vscode-css-languageserver", "--stdio" },
     flags = { debounce_text_changes = 500 },
-})
-
-require('lspkind').init({
-    with_text = true,
-    preset = 'default',
 })
 
 require'lspsaga'.init_lsp_saga{
